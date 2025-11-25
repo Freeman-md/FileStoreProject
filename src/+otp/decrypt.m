@@ -1,4 +1,4 @@
-function plainBytes = otpDecrypt(cipherBytes, keyBytes)
+function plainBytes = decrypt(cipherBytes, keyBytes)
     % OTP decryption using XOR on byte arrays
 
     % cipherBytes : uint8 row vector (encrypted data)

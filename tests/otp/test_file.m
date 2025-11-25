@@ -1,24 +1,24 @@
-disp("Running test_otp_file.m ...");
+disp("Running otp/test_file.m ...");
 
-inputFile = "../data/sample.txt";
-encFile   = "../data/sample.enc";
-decFile   = "../data/sample.dec.txt";
+inputFile = "../../data/sample.txt";
+encFile   = "../../data/sample.enc";
+decFile   = "../../data/sample.dec.txt";
 
 
 plainBytes = fileread(inputFile);
 plainBytes = uint8(plainBytes);
 
 
-keyBytes = generateKey(numel(plainBytes));
+keyBytes = otp.generateKey(numel(plainBytes));
 
 % Encrypt and save encrypted bytes
-cipherBytes = otpEncrypt(plainBytes, keyBytes);
+cipherBytes = otp.encrypt(plainBytes, keyBytes);
 fid = fopen(encFile, 'w');
 fwrite(fid, cipherBytes, 'uint8');
 fclose(fid);
 
 % Decrypt and save recovered bytes
-recoveredBytes = otpDecrypt(cipherBytes, keyBytes);
+recoveredBytes = otp.decrypt(cipherBytes, keyBytes);
 fid = fopen(decFile, 'w');
 fwrite(fid, recoveredBytes, 'uint8');
 fclose(fid);

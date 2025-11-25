@@ -1,17 +1,18 @@
-disp("Running test_otp_text.m...")
+disp("Running otp/test_text.m...")
 
 plainText = "This is my first OTP text";
 
 plainBytes = uint8(char(plainText));
 
-keyBytes = generateKey(numel(plainBytes));
+keyBytes = otp.generateKey(numel(plainBytes));
 
 % Encrypt the plaintext using the generated key
-cipherBytes = otpEncrypt(plainBytes, keyBytes);
+cipherBytes = otp.encrypt(plainBytes, keyBytes);
 
 
 % Decrypt the ciphertext using the generated key
-recoveredBytes = otpDecrypt(cipherBytes, keyBytes);
+recoveredBytes = otp.decrypt(cipherBytes, keyBytes);
+
 
 % Convert the recovered bytes to plaintext
 recoveredText = char(recoveredBytes);
