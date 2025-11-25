@@ -1,0 +1,11 @@
+# Ignore MATLAB autosaves
+*.asv
+*.mex*
+
+# Ignore system files
+.DS_Store
+
+# Ignore output files / encrypted files
+data/*.enc
+data/*.key
+
