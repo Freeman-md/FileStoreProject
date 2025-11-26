@@ -1,0 +1,87 @@
+[Phase 1] Core Project Setup + OTP Foundation (Final Working Version)
+---------------------------------------------------------------------
+
+- Created full project directory structure:
+    - /src
+    - /data
+    - /tests
+    - /docs
+  Added dev_notes.txt for ongoing development tracking.
+
+- Initialised MATLAB workspace:
+    - Set project root as working directory.
+    - Added /src to MATLAB search path for modular function access.
+    - Created main.m as entry point for the future menu-driven application.
+
+- Implemented OTP cryptography module using a MATLAB package:
+    src/+otp/
+        generateKey.m
+        encrypt.m
+        decrypt.m
+  Converted OTP into a namespaced package (otp.*) for clean, scalable structure.
+
+- Implemented generateKey.m using secure randomness:
+    - Constructed RandStream with 'mt19937ar' engine.
+    - Used 'Seed', 'shuffle' for non-deterministic key generation.
+    - Output: uint8 row vector of random bytes (0–255).
+
+- Implemented encrypt.m and decrypt.m:
+    - Both operate on uint8 byte arrays using bitxor().
+    - Enforced strict input validation (uint8 types + matching lengths).
+    - Normalised inputs to row vectors for consistent XOR behaviour.
+
+- Created Phase 1 test suite under tests/otp/:
+    - test_keygen.m: verifies key randomness, length, and uint8 datatype.
+    - test_text.m: tests OTP round-trip on simple text strings.
+    - test_file.m: tests OTP round-trip on an actual text file in /data.
+
+- Verified OTP correctness:
+    - Keys produced with correct length and datatype.
+    - Text string → encrypt → decrypt → full match.
+    - sample.txt → encrypt → decrypt → recovered identical file.
+
+- Completed cleanup & structure refactor:
+    - Moved all OTP logic into src/+otp/ for proper MATLAB namespacing.
+    - Updated test scripts to use otp.encrypt, otp.decrypt, otp.generateKey.
+    - Ensured consistent function signatures and file naming.
+
+- Phase 1 deliverable completed:
+    • Fully working OTP engine (text + files)
+    • Secure key generator
+    • Namespaced project structure
+    • Passing test suite
+    • Development environment ready for Phase 2
+
+
+
+
+[Phase 2] OTP Binary + Image File Support (Final Working Version)
+---------------------------------------------------------------
+
+- Added reusable binary-safe OTP wrappers:
+    - encryptFile.m
+    - decryptFile.m
+  These read and write raw uint8 bytes using fread/fwrite.
+
+- Normalised all OTP functions to guarantee consistent vector shapes:
+    - encrypt.m forces inputs to row vectors: x = x(:)';
+    - decrypt.m forces inputs to row vectors: x = x(:)';
+  This prevents NxN expansion in XOR and ensures correct output sizes.
+
+- File-level functions load file bytes as column vectors (fread), then
+  normalise them with transpose to row vectors before XOR.
+
+- Decryption pipeline outputs a row vector, written directly with fwrite.
+
+- Tests normalise fread output (column) to row using transpose to match
+  the original 1×N data for accurate equality checks.
+
+- OTP now supports:
+    • text files
+    • arbitrary binary files (.bin, .dat, etc.)
+    • PNG/JPEG images
+    • any raw byte stream
+
+- test_binary.m verified:
+    - 1024-byte random binary → encrypt → decrypt → perfectly restored
+    - shapes consistent: original (1×1024), decrypted (1×1024)
