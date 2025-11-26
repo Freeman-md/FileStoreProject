@@ -1,6 +1,6 @@
 disp("Running test_keygen.m ...");
 
-key = generateKey(16);
+key = otp.generateKey(16);
 
 disp("Generated Key: ");
 disp(key);

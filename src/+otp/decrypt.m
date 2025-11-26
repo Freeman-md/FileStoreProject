@@ -1,20 +1,13 @@
 function plainBytes = decrypt(cipherBytes, keyBytes)
-    % OTP decryption using XOR on byte arrays
+    % One-Time Pad decryption (same XOR operation).
 
-    % cipherBytes : uint8 row vector (encrypted data)
-    % cipherBytes : uint8 row vector (encrypted data)
-    % cipherBytes : uint8 row vector (encrypted data)
-
-    if ~isa(cipherBytes, 'uint8') || ~isa(keyBytes, 'uint8')
-        error('otpDecrypt:InputsMustBeUint8', ...
-            'cipherBytes and keyBytes must be uint8 arrays.');
-    end
+    cipherBytes = uint8(cipherBytes(:)');
+    keyBytes    = uint8(keyBytes(:)');
 
     if numel(cipherBytes) ~= numel(keyBytes)
-        error('otpDecrypt:LengthMismatch', ...
-            'Key length must match ciphertext length for OTP.');
+        error("otpDecrypt:LengthMismatch", ...
+              "Ciphertext and key must have same length.");
     end
-
 
     plainBytes = bitxor(cipherBytes, keyBytes);
 end

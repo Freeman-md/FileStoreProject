@@ -1,20 +1,14 @@
 function cipherBytes = encrypt(plainBytes, keyBytes)
-    % OTP Encryption using XOR on byte arrays
+    % One-Time Pad encryption (byte-wise XOR).
 
-    % plainBytes  : uint8 row vector (plaintext data)
-    % keyBytes    : uint8 row vector (same length as plainBytes)
-    % cipherBytes : uint8 row vector (encrypted data)
-
-    if ~isa(plainBytes, 'uint8') || ~isa(keyBytes, 'uint8')
-        error('otpEncrypt:InputsMustBeUint8', ...
-            'plainBytes and keyBytes must be uint8 arrays.');
-    end
+    % Normalise inputs
+    plainBytes = uint8(plainBytes(:)');
+    keyBytes   = uint8(keyBytes(:)');
 
     if numel(plainBytes) ~= numel(keyBytes)
-        error('otpEncrypt:LengthMismatch', ...
-            'Key length must match plaintext length for OTP.');
+        error("otpEncrypt:LengthMismatch", ...
+              "Plaintext and key must have same length.");
     end
 
-    
     cipherBytes = bitxor(plainBytes, keyBytes);
 end
