@@ -1,14 +1,9 @@
-function cipherBytes = encrypt(plainBytes, keyBytes)
-    % One-Time Pad encryption (byte-wise XOR).
+function [cipherText, key] = encrypt(plainText)
+%OTP.ENCRYPT Text-based One-Time Pad encryption.
 
-    % Normalise inputs
-    plainBytes = uint8(plainBytes(:)');
-    keyBytes   = uint8(keyBytes(:)');
+    plainBytes = uint8(plainText);
+    key        = randi([0, 255], 1, numel(plainBytes), 'uint8');
 
-    if numel(plainBytes) ~= numel(keyBytes)
-        error("otpEncrypt:LengthMismatch", ...
-              "Plaintext and key must have same length.");
-    end
-
-    cipherBytes = bitxor(plainBytes, keyBytes);
+    cipherBytes = bitxor(plainBytes, key);
+    cipherText  = char(cipherBytes);
 end

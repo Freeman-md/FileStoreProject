@@ -86,20 +86,23 @@
     - 1024-byte random binary → encrypt → decrypt → perfectly restored
     - shapes consistent: original (1×1024), decrypted (1×1024)
 
-[Phase 3]
-Caesar Encrypt 
-- Implemented caesar.encrypt as a lowercase-only Caesar shift.
-- Preserves non-alphabetic characters.
-- Handles wrap-around for both positive and negative shifts.
-- Function-based and package-compliant with coursework requirements.
+PHASE 3 — Classic Cryptography Suite
 
-Caesar Decrypt
-- Added caesar.decrypt mirroring logic from encrypt.
-- Performs lowercase normalization and preserves non-alphabet characters.
-- Handles wrap-around for negative and positive shift values.
-- Function is package-safe and matches coursework structure.
+Caesar Cipher
+Implemented caesar.encrypt and caesar.decrypt
+Clean variable naming, lowercase normalization, wrap-around handling
+Preserves non-letter characters
+Added full unit test suite covering encryption, decryption, wrap, and non-letter behaviour
+All tests passed
 
-Caesar Tests
-- Added a full test suite covering encrypt, decrypt, wrap-around, and non-letter handling.
-- Tests use MATLAB's functiontests structure for compatibility.
-- Ensures Caesar module behaves deterministically for all future phases.
+OTP
+Implemented otp.encrypt and otp.decrypt
+Generates random key using randi (1:1 length with input)
+XOR-based reversible encryption for text
+Added simple round-trip test test_otp.m
+Kept strictly within Phase 3 scope (no file/binary features yet)
+
+General
+All modules follow MATLAB package structure
+All functions deterministic and unit-testable
+No out-of-scope features included

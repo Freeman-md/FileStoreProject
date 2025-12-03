@@ -1,13 +1,7 @@
-function plainBytes = decrypt(cipherBytes, keyBytes)
-    % One-Time Pad decryption (same XOR operation).
+function plainText = decrypt(cipherText, key)
+%OTP.DECRYPT Text-based One-Time Pad decryption.
 
-    cipherBytes = uint8(cipherBytes(:)');
-    keyBytes    = uint8(keyBytes(:)');
-
-    if numel(cipherBytes) ~= numel(keyBytes)
-        error("otpDecrypt:LengthMismatch", ...
-              "Ciphertext and key must have same length.");
-    end
-
-    plainBytes = bitxor(cipherBytes, keyBytes);
+    cipherBytes = uint8(cipherText);
+    plainBytes  = bitxor(cipherBytes, key);
+    plainText   = char(plainBytes);
 end
