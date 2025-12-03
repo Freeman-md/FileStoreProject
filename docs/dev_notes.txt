@@ -98,3 +98,8 @@ Caesar Decrypt
 - Performs lowercase normalization and preserves non-alphabet characters.
 - Handles wrap-around for negative and positive shift values.
 - Function is package-safe and matches coursework structure.
+
+Caesar Tests
+- Added a full test suite covering encrypt, decrypt, wrap-around, and non-letter handling.
+- Tests use MATLAB's functiontests structure for compatibility.
+- Ensures Caesar module behaves deterministically for all future phases.
