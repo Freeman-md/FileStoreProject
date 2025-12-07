@@ -20,7 +20,7 @@ function [ciphertextBytes, ivBytes] = encryptCBCMode(inputBytes, roundKeys)
     inputBytes = inputBytes(:).';  % row vector
     dataLength = numel(inputBytes);
 
-    % PKCS#7 padding (same as ECB)
+    % PKCS#7 padding
     padAmount = blockSize - mod(dataLength, blockSize);
     if padAmount == 0
         padAmount = blockSize;
