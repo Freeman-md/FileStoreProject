@@ -1,4 +1,4 @@
-function keystream = generateKeyStream(lengthBytes, seed)
+function keystream = generateKeystream(lengthBytes, seed)
 %XORSTREAM.GENERATEKEYSTREAM Produce a repeatable PRNG-based keystream.
 
     if nargin < 2
