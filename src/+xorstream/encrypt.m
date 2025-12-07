@@ -3,7 +3,7 @@ function cipherBytes = encrypt(inputData, seed)
 
     if ischar(inputData)
         plainBytes = uint8(inputData);
-    elseif isa(inputBytes, 'uint8')
+    elseif isa(inputData, 'uint8')
         plainBytes = inputData(:)'; % ensure row vector
     else 
         error('xorstreamEncrypt:InvalidInputType', ...
