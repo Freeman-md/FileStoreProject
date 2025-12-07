@@ -59,49 +59,61 @@ end
 function out = mixColumns(state)
     out = zeros(4,4,'uint8');
     for col = 1:4
-        a = state(:,col);
-        out(:,col) = [ ...
-            bitxor(bitxor(bitxor(xt(a(1),2), xt(a(2),3)), a(3)), a(4)); ...
-            bitxor(bitxor(bitxor(xt(a(2),2), xt(a(3),3)), a(1)), a(4)); ...
-            bitxor(bitxor(bitxor(xt(a(3),2), xt(a(4),3)), a(1)), a(2)); ...
-            bitxor(bitxor(bitxor(xt(a(4),2), xt(a(1),3)), a(2)), a(3))  ...
-        ];
+        s = state(:,col);
+        out(1,col) = bitxor(bitxor(bitxor(xtime(s(1)), xtime(s(2),3)), s(3)), s(4));
+        out(2,col) = bitxor(bitxor(bitxor(s(1), xtime(s(2))), xtime(s(3),3)), s(4));
+        out(3,col) = bitxor(bitxor(bitxor(s(1), s(2)), xtime(s(3))), xtime(s(4),3));
+        out(4,col) = bitxor(bitxor(bitxor(xtime(s(1),3), s(2)), s(3)), xtime(s(4)));
     end
 end
 
-function y = xt(x, m)
-    if m == 2
-        y = aes_xtime(x);
-    elseif m == 3
-        y = bitxor(aes_xtime(x), x);
-    else
-        error('xtime:InvalidMultiplier','AES MixColumns uses only multipliers 2 or 3.');
+
+function y = xtime(x, mul)
+    if nargin == 1, mul = 2; end
+    switch mul
+        case 2
+            y = aes_xtime(x);
+        case 3
+            y = bitxor(aes_xtime(x), x);
+        otherwise
+            error('Invalid multiplier');
     end
 end
 
 function out = aes_sbox_lookup(indices)
     persistent S
     if isempty(S)
-        S = uint8([
-        99 124 119 123 242 107 111 197  48   1 103  43 254 215 171 118 ...
-        202 130 201 125 250  89  71 240 173 212 162 175 156 164 114 192 ...
-        183 253 147  38  54  63 247 204  52 165 229 241 113 216  49  21 ...
-          4 199  35 195  24 150   5 154   7  18 128 226 235  39 178 117 ...
-          9 131  44  26  27 110  90 160  82  59 214 179  41 227  47 132 ...
-        83 209   0 237  32 252 177  91 106 203 190  57  74  76  88 207 ...
-        208 239 170 251  67  77  51 133  69 249   2 127  80  60 159 168 ...
-         81 163  64 143 146 157  56 245 188 182 218  33  16 255 243 210 ...
-        205  12  19 236  95 151  68  23 196 167 126  61 100  93  25 115 ...
-         96 129  79 220  34  42 144 136  70 238 184  20 222  94  11 219 ...
-        224  50  58  10  73   6  36  92 194 211 172  98 145 149 228 121 ...
-        231 200  55 109 141 213  78 169 108  86 244 234 101 122 174   8 ...
-        186 120  37  46  28 166 180 198 232 221 116  31  75 189 139 138 ...
-        112  62 181 102  72   3 246  14  97  53  87 185 134 193  29 158 ...
-        225 248 152  17 105 217 142 148 155  30 135 233 206  85  40 223 ...
-        140 161 137  13 191 230  66 104  65 153  45  15 176  84 187  22]);
+        hexTable = [
+            '637c777bf26b6fc53001672bfed7ab76';
+            'ca82c97dfa5947f0add4a2af9ca472c0';
+            'b7fd9326363ff7cc34a5e5f171d83115';
+            '04c723c31896059a071280e2eb27b275';
+            '09832c1a1b6e5aa0523bd6b329e32f84';
+            '53d100ed20fcb15b6acbbe394a4c58cf';
+            'd0efaafb434d338545f9027f503c9fa8';
+            '51a3408f929d38f5bcb6da2110fff3d2';
+            'cd0c13ec5f974417c4a77e3d645d1973';
+            '60814fdc222a908846eeb814de5e0bdb';
+            'e0323a0a4906245cc2d3ac629195e479';
+            'e7c8376d8dd54ea96c56f4ea657aae08';
+            'ba78252e1ca6b4c6e8dd741f4bbd8b8a';
+            '703eb5664803f60e613557b986c11d9e';
+            'e1f8981169d98e949b1e87e9ce5528df';
+            '8ca1890dbfe6426841992d0fb054bb16'
+        ];
+
+        % Convert all 16 rows (16×32 chars) → one long hex string → bytes
+        allHexChars = hexTable.';          % transpose → 32×16
+        allHexChars = allHexChars(:).';    % linearise into 1×512 char vector
+
+        bytePairs = reshape(allHexChars, 2, []).';  % 256×2
+        S = uint8(hex2dec(bytePairs));             % 256×1 lookup
     end
+
     out = S(indices);
 end
+
+
 
 function out = aes_xtime(x)
     out = bitshift(x,1);

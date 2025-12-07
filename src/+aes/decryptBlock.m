@@ -41,7 +41,7 @@ function decryptedBlock = decryptBlock(cipherBlockBytes, roundKeys)
 end
 
 
-% ------------------ Inverse helper functions ------------------
+% Inverse helper functions
 
 function out = addRoundKey(state, keyWords)
     out = bitxor(state, keyWords);
@@ -61,64 +61,62 @@ end
 function out = invMixColumns(state)
     out = zeros(4,4,'uint8');
     for col = 1:4
-        a = state(:,col);
-        out(:,col) = [ ...
-            bitxor(bitxor(bitxor(xt(a(1),14), xt(a(2),11)), xt(a(3),13)), xt(a(4),9)); ...
-            bitxor(bitxor(bitxor(xt(a(1),9),  xt(a(2),14)), xt(a(3),11)), xt(a(4),13)); ...
-            bitxor(bitxor(bitxor(xt(a(1),13), xt(a(2),9)),  xt(a(3),14)), xt(a(4),11)); ...
-            bitxor(bitxor(bitxor(xt(a(1),11), xt(a(2),13)), xt(a(3),9)),  xt(a(4),14)) ...
-        ];
+        s = state(:,col);
+        out(1,col) = bitxor(bitxor(bitxor(mult(s(1),14), mult(s(2),11)), mult(s(3),13)), mult(s(4),9));
+        out(2,col) = bitxor(bitxor(bitxor(mult(s(1),9),  mult(s(2),14)), mult(s(3),11)), mult(s(4),13));
+        out(3,col) = bitxor(bitxor(bitxor(mult(s(1),13), mult(s(2),9)),  mult(s(3),14)), mult(s(4),11));
+        out(4,col) = bitxor(bitxor(bitxor(mult(s(1),11), mult(s(2),13)), mult(s(3),9)),  mult(s(4),14));
     end
 end
 
-function y = xt(x, multiplier)
-    switch multiplier
+function y = mult(x, c)
+    switch c
         case 9
-            y = xtime_chain(x, [2 2 2 1]);   % 2×2×2×x ⊕ x
+            y = bitxor(aes_xtime(aes_xtime(aes_xtime(x))), x);
         case 11
-            y = xtime_chain(x, [2 2 2])     % 2×2×2×x ⊕ 2×x ⊕ x
-                 ; y = bitxor(y, xtime_chain(x, [2])); y = bitxor(y, x);
+            y = bitxor(bitxor(aes_xtime(aes_xtime(aes_xtime(x))), aes_xtime(x)), x);
         case 13
-            y = xtime_chain(x, [2 2 2])     % 2×2×2×x ⊕ 2×2×x ⊕ x
-                 ; y = bitxor(y, xtime_chain(x, [2 2])); y = bitxor(y, x);
+            y = bitxor(bitxor(aes_xtime(aes_xtime(aes_xtime(x))), aes_xtime(aes_xtime(x))), x);
         case 14
-            y = xtime_chain(x, [2 2 2])     % 2×2×2×x ⊕ 2×2×x ⊕ 2×x
-                 ; y = bitxor(y, xtime_chain(x, [2 2])); y = bitxor(y, xtime_chain(x, [2]));
+            y = bitxor(bitxor(aes_xtime(aes_xtime(aes_xtime(x))), aes_xtime(aes_xtime(x))), aes_xtime(x));
         otherwise
-            error('Invalid multiplier');
-    end
-end
-
-function y = xtime_chain(x, multipliers)
-    y = x;
-    for m = multipliers
-        y = aes_xtime(y);
+            error('invalid c');
     end
 end
 
 function out = aes_inv_sbox_lookup(indices)
     persistent invS
     if isempty(invS)
-        invS = uint8([
-        82  9 106 213  48  54 165  56 191  64 163 158 129 243 215 251 ...
-        124 227  57 130 155  47 255 135  52 142  67  68 196 222 233   5 ...
-        54  63  15  45  239  44  34 214  234  23  19  21  122  32  29 ...
-        202  63  181 120  15  45  239  44  34 214  234  23  19  21  122 ...
-        32  29  223 155  14  94  33  34  87  53  255  12  11  183  78  25 ...
-        242  132  13  73  98  141  190 111  52  88  28  42  196  54  175 ...
-         73  111  112  62  181  132  98  11 215  41  205 201  125 211  43  110 ...
-        91  122  41  147  16  10 215  202  69  126  51  205  142  77  157  69 ...
-        74  100  23  83 158 165  29  41 215  90  61  106  45 199  125 171 ...
-        181 222  20  81  41  196  115  84 244 239  72  46  78  175  233  69 ...
-        33  189  12  96 164  151 188 133 197 241  82 112  75 135 160 137 ...
-        70  39  187  246 166  65  93  55  199 174  193 168  130 222  27 ...
-        119 193  44  12  254  129  240  50 116 253  87 126 222  166  170  68 ...
-        96  16  55 112  206  157 104  128  140  189 241  50 190 126 122 233 ...
-        139  235  228  66  25 189 155  157 233 127  147  241  166  255  221 ...
-        71 248  46  195  179  86  26  67  99  63  33  188  164 137 192  38]);
+        hexTable = [
+            '52096ad53036a538bf40a39e81f3d7fb';
+            '7ce339829b2fff87348e4344c4dee9cb';
+            '547b9432a6c2233dee4c950b42fac34e';
+            '082ea16628d924b2765ba2496d8bd125';
+            '72f8f66486689816d4a45ccc5d65b692';
+            '6c704850fdedb9da5e154657a78d9d84';
+            '90d8ab008cbcd30af7e45805b8b34506';
+            'd02c1e8fca3f0f02c1afbd0301138a6b';
+            '3a9111414f67dcea97f2cfcef0b4e673';
+            '96ac7422e7ad3585e2f937e81c75df6e';
+            '47f11a711d29c5896fb7620eaa18be1b';
+            'fc563e4bc6d279209adbc0fe78cd5af4';
+            '1fdda8338807c731b11210592780ec5f';
+            '60517fa919b54a0d2de57a9f93c99cef';
+            'a0e03b4dae2af5b0c8ebbb3c83539961';
+            '172b047eba77d626e169146355210c7d'
+        ];
+
+        % CONVERT: 16 rows × 32 chars → 512 chars → 256 byte pairs
+        chars = hexTable.';      % => 32 × 16
+        chars = chars(:).';      % => 1 × 512
+        bytePairs = reshape(chars, 2, []).';   % => 256 × 2
+
+        invS = uint8(hex2dec(bytePairs));      % => 256 × 1
     end
+
     out = invS(indices);
 end
+
 
 function out = aes_xtime(x)
     out = bitshift(x,1);
