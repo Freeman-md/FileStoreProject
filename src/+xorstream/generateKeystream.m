@@ -13,6 +13,6 @@ function keystream = generateKeystream(lengthBytes, seed)
 
     stream = RandStream('mt19937ar', 'Seed', seed);
 
-    keystream = uint8(randi(stream), [0, 255], 1, lengthBytes);
+    keystream = uint8(randi(stream, [0, 255], 1, lengthBytes));
 
 end
