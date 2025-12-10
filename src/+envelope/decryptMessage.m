@@ -1,24 +1,10 @@
-function plaintext = decryptMessage(encryptedStruct, privateKey, roundKeys)
-% envelope.decryptMessage
+function plaintext = decryptMessage(env, privateKey, roundKeys)
 
-% Envelope Decryption:
-% 1. RSA decrypt AES key
-% 2. AES-CBC decrypt ciphertext
-% 3. Return plaintext as uint8
+    d = privateKey(1);
+    n = privateKey(2);
 
-    % Extract struct fields
-    encryptedKey = encryptedStruct.encryptedKey;
-    ciphertext   = encryptedStruct.ciphertext;
-    iv           = encryptedStruct.iv;
+    aesKeyChar = rsa.decrypt(env.encryptedKey, d, n);
+    aesKey = uint8(aesKeyChar);   % 1 byte
 
-    % --- STEP 1: RSA DECRYPT THE AES KEY ---
-    aesKey = rsa.decrypt(encryptedKey, privateKey);
-
-    % --- STEP 2: AES-CBC DECRYPTION ---
-    plaintext = aes.decryptCBCMode(ciphertext, aesKey, iv, roundKeys);
-
-    % Always output uint8
-    if ~isa(plaintext, 'uint8')
-        plaintext = uint8(plaintext);
-    end
+    plaintext = aes.decryptCBCMode(env.ciphertext, env.iv, roundKeys);
 end
