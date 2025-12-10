@@ -1,4 +1,6 @@
 function hash = simpleHash(msg)
+%SIMPLEHASH  Toy checksum-style hash (text-only)
+
     arguments
         msg {mustBeText}
     end
