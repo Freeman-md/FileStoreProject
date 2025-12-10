@@ -2,19 +2,22 @@ function macHex = hmac_sha256(keyInput, msgInput)
 %HMAC_SHA256  Text-only HMAC using SHA-256. Returns lowercase hex.
 
     arguments
-        keyInput char { mustBeText }
-        msgInput char { mustBeText }
+        keyInput {mustBeText}
+        msgInput {mustBeText}
     end
 
-    keyBytes = uint8(keyInput);
-    msgBytes = uint8(msgInput);
+    keyBytes = uint8(char(keyInput));
+    msgBytes = uint8(char(msgInput));
 
-    blockSize = 64;
+    blockSize = 64; % SHA-256 block size
 
+    % If key too long, hash it and convert to bytes
     if numel(keyBytes) > blockSize
-        keyBytes = uint8(hex2dec(reshape(hash.sha256(char(keyBytes)),2,[])).');
+        hexKey = hash.sha256(char(keyBytes));
+        keyBytes = hexToBytes(hexKey);
     end
 
+    % Pad to block size
     if numel(keyBytes) < blockSize
         keyBytes(end+1:blockSize) = 0;
     end
@@ -23,14 +26,30 @@ function macHex = hmac_sha256(keyInput, msgInput)
     opad = uint8(92 * ones(1, blockSize));  % 0x5c
 
     inner = bitxor(keyBytes, ipad);
-    innerHashHex = hash.sha256([char(inner) char(msgBytes)]);
-    innerHashBytes = uint8(hex2dec(reshape(innerHashHex,2,[])).');
+    innerInput = [inner, msgBytes];                % both row vectors
+    innerHex = sha256_bytes(innerInput);
+    innerBytes = hexToBytes(innerHex).';           % force row vector
 
     outer = bitxor(keyBytes, opad);
-    finalHex = hash.sha256([char(outer) char(innerHashBytes)]);
-
-    macHex = lower(finalHex);
+    outerInput = [outer, innerBytes];              % both row vectors
+    macHex = sha256_bytes(outerInput);
 end
+
+
+%% SHA256 on raw bytes
+function hexStr = sha256_bytes(byteArray)
+    md = java.security.MessageDigest.getInstance("SHA-256");
+    raw = md.digest(uint8(byteArray));
+    hexStr = lower(reshape(dec2hex(typecast(raw,"uint8")).',1,[]));
+end
+
+%% Hex-string → uint8 bytes
+function bytes = hexToBytes(hexStr)
+    hexStr = char(hexStr);
+    pairs = reshape(hexStr, 2, []).';
+    bytes = uint8(hex2dec(pairs));
+end
+
 
 function mustBeText(x)
     if ~(ischar(x) || isstring(x))
